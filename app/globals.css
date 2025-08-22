@@ -2,5 +2,7 @@
 @theme{
     --color-card: #f8f8f8;
     --color-primary:#2563eb;
+    --color-destructive:#ef4444;
+    --color-destructive-foreground: #ffffff;
 
 }

@@ -114,7 +114,7 @@ export default function Home() {
                   onClearCart={handleClearCart}
                   isClearingCart={clearingCart}
                 />
-            <div className="rounded-lg border-gray-200 text-card-foreground shadow-sm bg-card">
+            <div className="rounded-lg border-gray-200 shadow-sm bg-card">
               <div className="p-4">
                 <div className="flex items-center gap-2 text-lg font-semibold">
                   <span role="img" aria-label="calc">🧮</span>
