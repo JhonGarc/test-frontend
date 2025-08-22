@@ -1,14 +1,16 @@
-'use client';
+"use client";
 
-import { useEffect, useMemo, useState } from 'react';
-import { fetchProducts, addToCart, fetchCart, clearCart } from '@/lib/api';
-import { Product } from '@/lib/types';
-import { ProductCard } from '@/components/ProductCard';
-import { ShoppingCart } from '@/components/ShoppingCart';
-import { findBestCombination } from '@/lib/findBestCombination';
+import { useEffect, useMemo, useState } from "react";
+import { fetchProducts, addToCart, fetchCart, clearCart } from "@/lib/api";
+import { Product } from "@/lib/types";
+import { ProductCard } from "@/components/ProductCard";
+import { ShoppingCart } from "@/components/ShoppingCart";
+import { findBestCombination } from "@/lib/findBestCombination";
 
 const formatUSD = (n: number) =>
-  new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(n);
+  new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(
+    n
+  );
 
 export default function Home() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -17,7 +19,7 @@ export default function Home() {
   const [cart, setCart] = useState<Product[]>([]);
   const [clearingCart, setClearingCart] = useState(false);
 
-  const [budget, setBudget] = useState<number>(150);
+  const [budget, setBudget] = useState("");
 
   useEffect(() => {
     async function loadProducts() {
@@ -25,7 +27,7 @@ export default function Home() {
         const data = await fetchProducts();
         setProducts(data);
       } catch (err) {
-        console.error('Error fetching products', err);
+        console.error("Error fetching products", err);
       } finally {
         setLoading(false);
       }
@@ -39,7 +41,7 @@ export default function Home() {
       const items = await fetchCart();
       setCart(items);
     } catch (err) {
-      console.error('Error loading cart', err);
+      console.error("Error loading cart", err);
     }
   };
 
@@ -49,7 +51,7 @@ export default function Home() {
       await addToCart(prod.id);
       await loadCart();
     } catch (err) {
-      console.error('Error adding to cart', err);
+      console.error("Error adding to cart", err);
     } finally {
       setAddingId(null);
     }
@@ -61,16 +63,16 @@ export default function Home() {
       await clearCart();
       await loadCart();
     } catch (err) {
-      console.error('Error clearing cart', err);
+      console.error("Error clearing cart", err);
     } finally {
       setClearingCart(false);
     }
   };
 
-  const bestCombo = useMemo(
-    () => findBestCombination(products, Math.max(0, Math.floor(budget))),
-    [products, budget]
-  );
+  const bestCombo = useMemo(() => {
+    const budgetNum = Number(budget);
+    return findBestCombination(products, Math.max(0, Math.floor(budgetNum || 0)));
+  }, [products, budget]);
 
   const bestTotal = useMemo(
     () => bestCombo.reduce((acc, p) => acc + p.price, 0),
@@ -79,7 +81,7 @@ export default function Home() {
 
   if (loading) {
     return <p className="p-6">Cargando productos...</p>;
-    }
+  }
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
@@ -88,7 +90,8 @@ export default function Home() {
           Tienda Online - Prueba Técnica
         </h1>
         <p className="mt-2 text-gray-600">
-          Sistema de carrito de compras con API RESTful y optimización de presupuesto
+          Sistema de carrito de compras con API RESTful y optimización de
+          presupuesto
         </p>
       </header>
       <main className="grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -108,31 +111,42 @@ export default function Home() {
         </section>
 
         <aside className="lg:col-span-1">
-          <div className="space-y-6 lg:sticky lg:top-24">     
-                <ShoppingCart
-                  products={cart}
-                  onClearCart={handleClearCart}
-                  isClearingCart={clearingCart}
-                />
+          <div className="space-y-6 lg:sticky lg:top-24">
+            <ShoppingCart
+              products={cart}
+              onClearCart={handleClearCart}
+              isClearingCart={clearingCart}
+            />
             <div className="rounded-lg border-gray-200 shadow-sm bg-card">
               <div className="p-4">
                 <div className="flex items-center gap-2 text-lg font-semibold">
-                  <span role="img" aria-label="calc">🧮</span>
+                  <span role="img" aria-label="calc">
+                    🧮
+                  </span>
                   Optimizador de Presupuesto
                 </div>
 
                 <label className="mt-4 block">
-                  <span className="text-sm text-gray-600">Presupuesto Máximo</span>
+                  <span className="text-sm text-gray-600">
+                    Presupuesto Máximo
+                  </span>
                   <input
                     type="number"
                     min={0}
                     value={budget}
-                    onChange={(e) => setBudget(Number(e.target.value))}
+                    onChange={(e) => {
+                      const val = e.target.value;
+
+                      if (val === "") {
+                        setBudget("");
+                      } else {
+                        setBudget(String(Number(val)));
+                      }
+                    }}
                     className="mt-1 w-full rounded border px-3 py-2"
                     placeholder="Ej: 150"
                   />
                 </label>
-
                 <div className="mt-4 space-y-2">
                   {bestCombo.length === 0 ? (
                     <p className="text-sm text-gray-500">
@@ -144,7 +158,9 @@ export default function Home() {
                         {bestCombo.map((p) => (
                           <li key={p.id} className="flex justify-between">
                             <span>{p.name}</span>
-                            <span className="font-medium">{formatUSD(p.price)}</span>
+                            <span className="font-medium">
+                              {formatUSD(p.price)}
+                            </span>
                           </li>
                         ))}
                       </ul>
